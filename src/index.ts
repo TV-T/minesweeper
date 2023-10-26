@@ -48,7 +48,7 @@ function formatCell(cell: Cell) {
     case cell.flagged:
       return '🚩';
     case cell.revealed:
-      return cell.mine ? 'X' : cell.neighborMineCount.toString();
+      return cell.mine ? '💣' : cell.neighborMineCount.toString();
     default: return '⬜';
   }
 }
