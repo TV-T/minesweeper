@@ -1,3 +1,6 @@
+import { createInterface } from 'readline';
+import { stdin, stdout } from 'process';
+
 interface Cell {
   mine: boolean;
   flagged: boolean;
@@ -6,9 +9,13 @@ interface Cell {
 };
 
 const defaultCell = { mine: false, flagged: false, revealed: false, neighborMineCount: 0 };
-
-const boardSize = 8 * 8;
+const rowLength = 8;
+const boardSize = rowLength * rowLength;
 const mineCount = 10;
+const minefield = createMinefield();
+
+const readlineInterface = createInterface({ input: stdin, output: stdout });
+readlineInterface.on('close', () => process.exit(0));
 
 function createMinefield() {
   // Fill a set with unique indexes for mines
@@ -30,10 +37,11 @@ function createMinefield() {
 }
 
 function printMinefield(mineField: Cell[]) {
-  const minefieldString = mineField.map((cell, index) => {
+  let minefieldString = '   1  2  3  4  5  6  7  8';
+  minefieldString += mineField.map((cell, index) => {
     // Add a newline every 8 cells
     let cellString = '';
-    if (index % 8 === 0) cellString = '\n';
+    if (index % rowLength === 0) cellString = `\n${index / rowLength + 1} `;
     else cellString = ' ';
 
     cellString += formatCell(cell);
@@ -48,9 +56,43 @@ function formatCell(cell: Cell) {
     case cell.flagged:
       return '🚩';
     case cell.revealed:
-      return cell.mine ? '💣' : cell.neighborMineCount.toString();
+      return cell.mine ? '💣' : ` ${cell.neighborMineCount}`;
     default: return '⬜';
   }
 }
 
-printMinefield(createMinefield());
+function prompt() {
+  printMinefield(minefield);
+  readlineInterface.question('Enter coordinates to reveal:\n', (answer) => {
+    switch(true) {
+      case answer === 'q':
+        readlineInterface.close();
+        return;
+      case answer === 'reveal':
+        minefield.forEach(cell => cell.revealed = true);
+        break;
+      case answer === 'hide':
+        minefield.forEach(cell => cell.revealed = false);
+        break;
+      default: {
+        const [x, y, action] = answer.split(' ');
+        const index = (Number(y) - 1) * rowLength + (Number(x) - 1);
+        const cell = minefield[index];
+    
+        if (cell.mine && action !== 'flag') {
+          cell.revealed = true;
+          printMinefield(minefield);
+          console.log('You lose!');
+          readlineInterface.close();
+        }
+    
+        if (action === 'flag') cell.flagged = !cell.flagged;
+        else cell.revealed = true;
+      }
+    }
+
+    prompt();
+  });
+}
+
+prompt();
