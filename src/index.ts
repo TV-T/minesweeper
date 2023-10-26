@@ -34,7 +34,7 @@ function printMinefield(mineField: Cell[]) {
     // Add a newline every 8 cells
     let cellString = '';
     if (index % 8 === 0) cellString = '\n';
-    else cellString = '|';
+    else cellString = ' ';
 
     cellString += formatCell(cell);
     return cellString;
@@ -46,10 +46,10 @@ function printMinefield(mineField: Cell[]) {
 function formatCell(cell: Cell) {
   switch (true) {
     case cell.flagged:
-      return 'F';
+      return '🚩';
     case cell.revealed:
       return cell.mine ? 'X' : cell.neighborMineCount.toString();
-    default: return ' ';
+    default: return '⬜';
   }
 }
 
