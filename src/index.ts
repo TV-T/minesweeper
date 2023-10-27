@@ -62,7 +62,7 @@ function printMinefield(mineField: Cell[]) {
 function formatCell(cell: Cell) {
   switch (true) {
     case cell.flagged:
-      return ' 🚩';
+      return '🚩';
     case cell.revealed:
       return cell.mine ? '💣' : ` ${cell.neighborMineCount}`;
     default: return '⬜';
